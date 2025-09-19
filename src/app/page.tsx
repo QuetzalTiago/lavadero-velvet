@@ -11,7 +11,6 @@ import {
   onSnapshot,
   deleteDoc,
   doc,
-  getDocs,
   QueryDocumentSnapshot,
   Timestamp,
   QuerySnapshot,
@@ -46,26 +45,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Remove expired entries (duration exceeded) for both queues
-  const cleanExpiredEntries = async () => {
-    const now = Date.now();
-    for (const queueType of ["lavarropas", "secadora"]) {
-      const snapshot: QuerySnapshot = await getDocs(collection(db, queueType));
-      snapshot.forEach(async (docSnap: QueryDocumentSnapshot) => {
-        const data = docSnap.data() as QueueEntry;
-        if (data.joinedAt && data.duration) {
-          const joined = data.joinedAt.toDate().getTime();
-          if (joined && now - joined > data.duration * 60000) {
-            await deleteDoc(doc(db, queueType, docSnap.id));
-          }
-        }
-      });
-    }
-  };
 
   // Real-time listeners for both queues
   useEffect(() => {
-    cleanExpiredEntries();
     const unsubLavarropas = onSnapshot(collection(db, "lavarropas"), (snapshot: QuerySnapshot) => {
       const entries: QueueEntry[] = [];
       snapshot.forEach((docSnap: QueryDocumentSnapshot) => {
