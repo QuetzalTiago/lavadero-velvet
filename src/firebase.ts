@@ -3,7 +3,7 @@
 // Comments and code in English, UI text in Spanish via localization
 
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, Timestamp } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_KEY,
@@ -24,7 +24,7 @@ export type QueueEntryDB = {
   apartment: string;
   duration: number;
   type: string;
-  joinedAt: any; // Firestore Timestamp
+  joinedAt: Timestamp;
 };
 
 export { db };
