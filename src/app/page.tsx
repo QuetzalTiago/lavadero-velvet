@@ -17,6 +17,7 @@ import {
   QuerySnapshot,
 } from "firebase/firestore";
 import { t } from "../locales/t";
+// ...existing code...
 
 // Firestore queue entry type
 type QueueEntry = {
@@ -29,6 +30,14 @@ type QueueEntry = {
 
 export default function Home() {
   // State for queue, form, loading, error
+  // Delete an entry from a queue
+  const handleDelete = async (queueType: "lavarropas" | "secadora", id: string) => {
+    try {
+      await deleteDoc(doc(db, queueType, id));
+    } catch {
+      setError("No se pudo borrar la entrada.");
+    }
+  };
   const [lavarropasQueue, setLavarropasQueue] = useState<QueueEntry[]>([]);
   const [secadoraQueue, setSecadoraQueue] = useState<QueueEntry[]>([]);
   const [apartment, setApartment] = useState("");
@@ -193,10 +202,17 @@ export default function Home() {
             ) : (
               <ol className="list-decimal list-inside flex flex-col gap-2">
                 {lavarropasQueue.map((entry, idx) => (
-                  <li key={entry.id} className="flex flex-col gap-1 bg-gray-800 rounded px-3 py-2">
+                  <li key={entry.id} className="flex flex-col gap-1 bg-gray-800 rounded px-3 py-2 relative">
                     <span>{t("position")}: <span className="font-bold">{idx + 1}</span></span>
                     <span>{t("apartment")}: <span className="font-bold">{entry.apartment}</span></span>
                     <span>{t("duration")}: <span className="font-bold">{entry.duration}</span></span>
+                    <button
+                      className="absolute top-2 right-2 text-xs bg-red-600 hover:bg-red-700 text-white rounded px-2 py-1"
+                      onClick={() => handleDelete("lavarropas", entry.id!)}
+                      title="Eliminar"
+                    >
+                      Eliminar
+                    </button>
                   </li>
                 ))}
               </ol>
@@ -209,10 +225,17 @@ export default function Home() {
             ) : (
               <ol className="list-decimal list-inside flex flex-col gap-2">
                 {secadoraQueue.map((entry, idx) => (
-                  <li key={entry.id} className="flex flex-col gap-1 bg-gray-800 rounded px-3 py-2">
+                  <li key={entry.id} className="flex flex-col gap-1 bg-gray-800 rounded px-3 py-2 relative">
                     <span>{t("position")}: <span className="font-bold">{idx + 1}</span></span>
                     <span>{t("apartment")}: <span className="font-bold">{entry.apartment}</span></span>
                     <span>{t("duration")}: <span className="font-bold">{entry.duration}</span></span>
+                    <button
+                      className="absolute top-2 right-2 text-xs bg-red-600 hover:bg-red-700 text-white rounded px-2 py-1"
+                      onClick={() => handleDelete("secadora", entry.id!)}
+                      title="Eliminar"
+                    >
+                      Eliminar
+                    </button>
                   </li>
                 ))}
               </ol>
