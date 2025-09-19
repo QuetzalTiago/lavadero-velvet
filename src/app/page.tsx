@@ -31,6 +31,8 @@ export default function Home() {
   // State for queue, form, loading, error
   // Delete an entry from a queue
   const handleDelete = async (queueType: "lavarropas" | "secadora", id: string) => {
+  const confirmed = window.confirm("¿Estás seguro que quieres eliminar esta entrada? Porfavor ser respetuoso y no borrar entradas ajenas.");
+    if (!confirmed) return;
     try {
       await deleteDoc(doc(db, queueType, id));
     } catch {
