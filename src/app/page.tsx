@@ -32,7 +32,7 @@ export default function Home() {
   const [lavarropasQueue, setLavarropasQueue] = useState<QueueEntry[]>([]);
   const [secadoraQueue, setSecadoraQueue] = useState<QueueEntry[]>([]);
   const [apartment, setApartment] = useState("");
-  const [duration, setDuration] = useState<number>(30);
+  const [duration, setDuration] = useState<number>(45);
   const [type, setType] = useState<string>("Lavarropas");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
