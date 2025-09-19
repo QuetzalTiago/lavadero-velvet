@@ -4,7 +4,7 @@
 const es = {
   apartment: "Apartamento",
   duration: "Tiempo (minutos)",
-  joinQueue: "Unirme a la cola",
+  joinQueue: "Unirme",
   queueEmpty: "La cola está vacía",
   position: "Posición",
   minutes: "minutos",
@@ -12,8 +12,8 @@ const es = {
   validation_duration: "Duración entre 10 y 120 minutos",
   submitting: "Enviando...",
   error: "Error al enviar. Inténtalo de nuevo.",
-  lavarropasQueue: "Cola de Lavarropas",
-  secadoraQueue: "Cola de Secadora",
+  lavarropasQueue: "Lavarropas",
+  secadoraQueue: "Secadora",
 };
 
 export default es;

@@ -130,7 +130,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-950 text-white font-sans flex flex-col items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-4xl mx-auto bg-gray-900 rounded-xl shadow-lg p-6 flex flex-col gap-6">
-        <h1 className="text-2xl font-bold text-center mb-2">Lavadero Velvet - Cola</h1>
+  <h1 className="text-2xl font-bold text-center mb-2">Lavadero Velvet</h1>
+  <h2 className="text-base font-medium text-center text-gray-300 mb-4">Recuerda eliminar tu entrada una vez terminado el lavado/secado.</h2>
         <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <label className="flex flex-col gap-1 flex-1">
