@@ -1,4 +1,3 @@
-
 "use client";
 // Laundry queue app main page
 // All code/comments in English, UI text in Spanish via localization
@@ -11,6 +10,7 @@ import {
   onSnapshot,
   deleteDoc,
   doc,
+  updateDoc,
   QueryDocumentSnapshot,
   Timestamp,
   QuerySnapshot,
@@ -25,6 +25,7 @@ type QueueEntry = {
   duration: number;
   type: string;
   joinedAt: Timestamp;
+  startedAt?: Timestamp;
 };
 
 export default function Home() {
@@ -50,7 +51,8 @@ export default function Home() {
 
   // Real-time listeners for both queues
   useEffect(() => {
-    const unsubLavarropas = onSnapshot(collection(db, "lavarropas"), (snapshot: QuerySnapshot) => {
+    let updatingLavarropas = false;
+    const unsubLavarropas = onSnapshot(collection(db, "lavarropas"), async (snapshot: QuerySnapshot) => {
       const entries: QueueEntry[] = [];
       snapshot.forEach((docSnap: QueryDocumentSnapshot) => {
         const data = docSnap.data() as QueueEntry;
@@ -60,12 +62,31 @@ export default function Home() {
           duration: data.duration,
           type: data.type,
           joinedAt: data.joinedAt,
+          startedAt: data.startedAt,
         });
       });
       entries.sort((a, b) => (a.joinedAt?.seconds ?? 0) - (b.joinedAt?.seconds ?? 0));
+
+      // Only set startedAt for the first entry if none in the queue have startedAt
+      if (
+        entries.length > 0 &&
+        entries.every(e => !e.startedAt) &&
+        typeof entries[0].id === "string" &&
+        !updatingLavarropas
+      ) {
+        updatingLavarropas = true;
+        const firstDocRef = doc(db, "lavarropas", entries[0].id);
+        try {
+          await updateDoc(firstDocRef, { startedAt: serverTimestamp() });
+        } catch {
+          // Optionally handle error
+        }
+        updatingLavarropas = false;
+      }
       setLavarropasQueue(entries);
     });
-    const unsubSecadora = onSnapshot(collection(db, "secadora"), (snapshot: QuerySnapshot) => {
+    let updatingSecadora = false;
+    const unsubSecadora = onSnapshot(collection(db, "secadora"), async (snapshot: QuerySnapshot) => {
       const entries: QueueEntry[] = [];
       snapshot.forEach((docSnap: QueryDocumentSnapshot) => {
         const data = docSnap.data() as QueueEntry;
@@ -75,9 +96,26 @@ export default function Home() {
           duration: data.duration,
           type: data.type,
           joinedAt: data.joinedAt,
+          startedAt: data.startedAt,
         });
       });
       entries.sort((a, b) => (a.joinedAt?.seconds ?? 0) - (b.joinedAt?.seconds ?? 0));
+      // Only set startedAt for the first entry if none in the queue have startedAt
+      if (
+        entries.length > 0 &&
+        entries.every(e => !e.startedAt) &&
+        typeof entries[0].id === "string" &&
+        !updatingSecadora
+      ) {
+        updatingSecadora = true;
+        const firstDocRef = doc(db, "secadora", entries[0].id);
+        try {
+          await updateDoc(firstDocRef, { startedAt: serverTimestamp() });
+        } catch {
+          // Optionally handle error
+        }
+        updatingSecadora = false;
+      }
       setSecadoraQueue(entries);
     });
     return () => {
@@ -188,9 +226,24 @@ export default function Home() {
               <ol className="list-decimal list-inside flex flex-col gap-2">
                 {lavarropasQueue.map((entry, idx) => (
                   <li key={entry.id} className="flex flex-col gap-1 bg-gray-800 rounded px-3 py-2 relative">
-                    <span>{t("position")}: <span className="font-bold">{idx + 1}</span></span>
+                    {idx === 0 ? (
+                      <span className="text-green-500 font-bold">{t("inProgress")}</span>
+                    ) : (
+                      <span>{t("position")}: <span className="font-bold">{idx + 1}</span></span>
+                    )}
                     <span>{t("apartment")}: <span className="font-bold">{entry.apartment}</span></span>
                     <span>{t("duration")}: <span className="font-bold">{entry.duration}</span></span>
+                    {entry.startedAt && (
+                      <span>
+                        {t("endTime")}: <span className="font-bold">
+                          {(() => {
+                            const startDate = entry.startedAt.toDate();
+                            const endDate = new Date(startDate.getTime() + entry.duration * 60000);
+                            return endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                          })()}
+                        </span>
+                      </span>
+                    )}
                     <button
                       className="absolute top-2 right-2 text-xs bg-red-600 hover:bg-red-700 text-white rounded px-2 py-1"
                       onClick={() => handleDelete("lavarropas", entry.id!)}
@@ -211,9 +264,24 @@ export default function Home() {
               <ol className="list-decimal list-inside flex flex-col gap-2">
                 {secadoraQueue.map((entry, idx) => (
                   <li key={entry.id} className="flex flex-col gap-1 bg-gray-800 rounded px-3 py-2 relative">
-                    <span>{t("position")}: <span className="font-bold">{idx + 1}</span></span>
+                    {idx === 0 ? (
+                      <span className="text-green-500 font-bold">{t("inProgress")}</span>
+                    ) : (
+                      <span>{t("position")}: <span className="font-bold">{idx + 1}</span></span>
+                    )}
                     <span>{t("apartment")}: <span className="font-bold">{entry.apartment}</span></span>
                     <span>{t("duration")}: <span className="font-bold">{entry.duration}</span></span>
+                    {entry.startedAt && (
+                      <span>
+                        {t("endTime")}: <span className="font-bold">
+                          {(() => {
+                            const startDate = entry.startedAt.toDate();
+                            const endDate = new Date(startDate.getTime() + entry.duration * 60000);
+                            return endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                          })()}
+                        </span>
+                      </span>
+                    )}
                     <button
                       className="absolute top-2 right-2 text-xs bg-red-600 hover:bg-red-700 text-white rounded px-2 py-1"
                       onClick={() => handleDelete("secadora", entry.id!)}

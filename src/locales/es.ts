@@ -14,6 +14,8 @@ const es = {
   error: "Error al enviar. Inténtalo de nuevo.",
   lavarropasQueue: "Lavarropas",
   secadoraQueue: "Secadora",
+  endTime: "Hora de finalización",
+  inProgress: "En progreso",
 };
 
 export default es;
