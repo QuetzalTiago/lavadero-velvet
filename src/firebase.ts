@@ -4,6 +4,7 @@
 
 import { initializeApp, getApps } from "firebase/app";
 import { getFirestore, Timestamp } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_KEY,
@@ -18,6 +19,8 @@ const firebaseConfig = {
 // Avoid re-initializing Firebase in Next.js hot reload
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
 // TypeScript type for queue entries in Firestore
 export type QueueEntryDB = {
@@ -25,6 +28,9 @@ export type QueueEntryDB = {
   duration: number;
   type: string;
   joinedAt: Timestamp;
+  userId: string;
+  userName: string;
+  userPhotoUrl: string;
 };
 
-export { db };
+export { db, auth, googleProvider };
